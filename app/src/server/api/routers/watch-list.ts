@@ -1,24 +1,25 @@
 import { z } from "zod"
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc"
+import { createTRPCRouter, protectedProcedure } from "../trpc"
 
 export const watchListRouter = createTRPCRouter({
   createWatchedSubreddit: protectedProcedure
     .input(
       z.object({
         subreddits: z.array(z.object({ value: z.string().min(2) })),
-        products: z.string().min(2),
+        topic: z.string().min(2),
+        title: z.string().min(2),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const productList = await ctx.db.productList.create({
+      const searchConversation = await ctx.db.searchConversation.create({
         data: {
-          products: input.products,
-          // include other necessary fields to create a productList
+          topic: input.topic,
         },
       })
 
       const watchedSubreddit = await ctx.db.watchedSubreddit.create({
         data: {
+          title: input.title,
           organizationId: ctx.selectedOrganization.id,
           subreddits: {
             createMany: {
@@ -27,7 +28,7 @@ export const watchListRouter = createTRPCRouter({
               })),
             },
           },
-          productListId: productList.id,
+          searchConversationId: searchConversation.id,
         },
       })
       return { watchedSubreddit }
@@ -39,18 +40,18 @@ export const watchListRouter = createTRPCRouter({
         organizationId: ctx.selectedOrganization.id,
       },
       include: {
-        productList: true,
+        searchConversation: true,
         subreddits: true,
       },
     })
     return { watchedSubreddit }
   }),
 
-  deleteWatchedSubreddit: publicProcedure
+  deleteWatchedSubreddit: protectedProcedure
     .input(
       z.object({
         watchedSubredditId: z.string().uuid(),
-        productListId: z.string().uuid(),
+        searchConversationId: z.string().uuid(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -59,20 +60,21 @@ export const watchListRouter = createTRPCRouter({
           id: input.watchedSubredditId,
         },
       })
-      await ctx.db.productList.delete({
+      await ctx.db.searchConversation.delete({
         where: {
-          id: input.productListId,
+          id: input.searchConversationId,
         },
       })
       return { success: true }
     }),
 
-  editWatchedSubreddit: publicProcedure
+  editWatchedSubreddit: protectedProcedure
     .input(
       z.object({
         watchedSubredditId: z.string().uuid(),
         subreddits: z.array(z.object({ value: z.string().min(2) })),
-        products: z.string().min(2),
+        topic: z.string().min(2),
+        title: z.string().min(2),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -81,6 +83,7 @@ export const watchListRouter = createTRPCRouter({
           id: input.watchedSubredditId,
         },
         data: {
+          title: input.title,
           subreddits: {
             deleteMany: {},
             createMany: {
@@ -89,10 +92,10 @@ export const watchListRouter = createTRPCRouter({
               })),
             },
           },
-          productList: {
+          searchConversation: {
             update: {
               data: {
-                products: input.products,
+                topic: input.topic,
               },
             },
           },

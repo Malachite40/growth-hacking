@@ -1,6 +1,5 @@
 import { leadsRouter } from "./routers/leads"
 import { organizationRouter } from "./routers/organization"
-import { potentialLeadsRouter } from "./routers/potentialLeads"
 import { settingsRouter } from "./routers/settings"
 import { tasksRouter } from "./routers/tasks"
 import { watchListRouter } from "./routers/watch-list"
@@ -12,7 +11,6 @@ import { createCallerFactory, createTRPCRouter } from "./trpc"
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  potentialLeads: potentialLeadsRouter,
   leads: leadsRouter,
   tasks: tasksRouter,
   watchList: watchListRouter,

@@ -4,14 +4,16 @@ import reddit from "../lib/reddit/reddit";
 
 export async function ScanRedditPost({
   subreddit,
-  products,
+  topic,
   title,
   postId,
+  watchedSubredditId,
 }: {
   subreddit: string;
-  products: string;
+  topic: string;
   title: string;
   postId: string;
+  watchedSubredditId: string;
 }) {
   const comments = await reddit.getSubmission(postId).comments.fetchAll();
 
@@ -25,11 +27,11 @@ export async function ScanRedditPost({
     messages: [
       {
         role: "system",
-        content: `You are a bot that helps find conversations on reddit that match certain criteria. You will be given a prompt in the form of, "Looking for conversations about" followed by the search. You will then be given a list of comments from a reddit post. You will need to identify conversations that may fit the search.`,
+        content: `You are a bot that helps find conversations on reddit that match certain criteria. You will be given a prompt in the form of, "Looking for conversations about" followed by the search. You will then be given a list of comments from a reddit post. You will need to identify conversations that may fit the search. Respond in with a JSON array of objects with the following keys: id, score. The id is the comment id and the score is a whole number between 0 and 100 representing how well the comment fits the search. Score 100 means the comment is a perfect match. Score 0 means the comment is not relevant. Score 50 means the comment is somewhat relevant.`,
       },
       {
         role: "user",
-        content: `I've attached a list of comments from the ${title} post on the ${subreddit} subreddit. Please identify conversations that may fit the search ${products}. Here are the comments: ${JSON.stringify(
+        content: `I've attached a list of comments from the ${title} post on the ${subreddit} subreddit. Please identify conversations that may fit the search ${topic}. Here are the comments: ${JSON.stringify(
           comments_map
         )}.`,
       },
@@ -71,6 +73,7 @@ export async function ScanRedditPost({
   const l = await prisma.commentLeadReddit.createMany({
     data: new_leads.map((h) => {
       return {
+        watchedSubredditId: watchedSubredditId,
         redditPostId: reddit_post.id,
         action: h.action,
         commentId: h.id,

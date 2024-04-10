@@ -12,12 +12,7 @@ import { useEffect, useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { z } from "zod"
 import { Button, buttonVariants } from "~/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from "~/components/ui/card"
+import { Card, CardContent, CardHeader } from "~/components/ui/card"
 import { Input } from "~/components/ui/input"
 
 import {
@@ -56,7 +51,8 @@ export type WatchListClientPageProps = {}
 const formSchema = z.object({
   watchedSubredditId: z.string().uuid().optional(),
   subreddits: z.array(z.object({ value: z.string().min(2) })),
-  products: z.string().min(2),
+  topic: z.string().min(2),
+  title: z.string().min(2),
 })
 
 function WatchListClientPage({}: WatchListClientPageProps) {
@@ -100,7 +96,8 @@ function WatchListClientPage({}: WatchListClientPageProps) {
           value: "",
         },
       ],
-      products: "",
+      topic: "",
+      title: "",
     },
     reValidateMode: "onChange",
   })
@@ -115,7 +112,8 @@ function WatchListClientPage({}: WatchListClientPageProps) {
       editSubredditWatchListItem.mutate({
         watchedSubredditId: values.watchedSubredditId,
         subreddits: values.subreddits,
-        products: values.products,
+        topic: values.topic,
+        title: values.title,
       })
       return
     }
@@ -131,8 +129,6 @@ function WatchListClientPage({}: WatchListClientPageProps) {
     if (!similarSubredditQuery.data) return
     setSearchEnabled(false)
   }, [similarSubredditQuery.data])
-
-  const products = form.watch("products")
 
   const { fields, append } = useFieldArray({
     name: "subreddits",
@@ -161,7 +157,7 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                   value: "",
                 },
               ],
-              products: "",
+              topic: "",
             })
             setSubredditSuggestions([])
             setPrompt("")
@@ -173,13 +169,29 @@ function WatchListClientPage({}: WatchListClientPageProps) {
         <AlertDialogContent className="">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="">
-              <AlertDialogHeader className="mb-8">
+              <AlertDialogHeader className="mb-8 space-y-6">
                 <AlertDialogTitle>
                   Create a new watch list item.
                 </AlertDialogTitle>
                 <FormField
                   control={form.control}
-                  name="products"
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Label</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Keycaps Search" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        A label to identify this watch list item.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="topic"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Looking for conversations about:</FormLabel>
@@ -390,9 +402,10 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                           subreddits: item.subreddits.map((subreddit) => {
                             return { value: subreddit.name }
                           }),
-                          products: item.productList.products,
+                          topic: item.searchConversation.topic,
+                          title: item.title,
                         })
-                        setPrompt(item.productList.products)
+                        setPrompt(item.searchConversation.topic)
                         setIsOpen(true)
                       }}
                     >
@@ -404,7 +417,7 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                       onClick={async () => {
                         deleteSubredditWatchListItem.mutate({
                           watchedSubredditId: item.id,
-                          productListId: item.productList.id,
+                          searchConversationId: item.searchConversation.id,
                         })
                       }}
                     >
@@ -414,22 +427,22 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <CardHeader>
-                  <div className="hover:underline hover:underline-offset-1">
-                    {item.productList.products}
+                  <div className="text-lg">{item.title}</div>
+                  <div className="cursor-pointer text-sm text-muted-foreground hover:underline hover:underline-offset-1">
+                    {item.searchConversation.topic}
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>
-                    <div className="flex flex-wrap gap-2">
-                      {item.subreddits.map((subreddit) => {
-                        return (
-                          <Badge variant={"secondary"} key={subreddit.name}>
-                            {subreddit.name}
-                          </Badge>
-                        )
-                      })}
-                    </div>
-                  </CardDescription>
+                  <div className="flex flex-wrap gap-2">
+                    {item.subreddits.map((subreddit) => {
+                      // TODO:: fix div inside p tag issue
+                      return (
+                        <Badge variant={"secondary"} key={subreddit.name}>
+                          {subreddit.name}
+                        </Badge>
+                      )
+                    })}
+                  </div>
                 </CardContent>
               </Card>
             )

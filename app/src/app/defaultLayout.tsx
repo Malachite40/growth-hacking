@@ -2,7 +2,7 @@
 
 import { SignedIn, SignedOut, useClerk } from "@clerk/nextjs"
 import { Organization, User } from "@prisma/client"
-import { Cctv, Inbox, LucideIcon, PlusIcon } from "lucide-react"
+import { Cctv, Inbox, LucideIcon, PlusIcon, ThumbsUp } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import CreateOrganizationModal from "~/components/create-org-modal"
@@ -68,6 +68,13 @@ function DefaultLayout({
       icon: Cctv,
       variant: pathname.startsWith("/watch-list") ? "default" : "ghost",
       href: "/watch-list",
+    },
+    {
+      title: "Favorites",
+      label: "",
+      icon: ThumbsUp,
+      variant: pathname.startsWith("/favorites") ? "default" : "ghost",
+      href: "/favorites",
     },
   ]
   return (

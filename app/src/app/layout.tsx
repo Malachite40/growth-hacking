@@ -2,7 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs"
 import { Inter } from "next/font/google"
 import { cookies } from "next/headers"
 import { ScrollArea } from "~/components/ui/scroll-area"
-import { Toaster } from "~/components/ui/toaster"
+import { Toaster } from "~/components/ui/sonner"
 import { getUser } from "~/lib/auth/context"
 import "~/styles/globals.css"
 import { TRPCReactProvider } from "~/trpc/react"
@@ -46,7 +46,7 @@ export default async function RootLayout({
                 organizations={organizations || null}
               >
                 <div className="flex h-full pb-12">
-                  <ScrollArea className="w-full ">{children}</ScrollArea>
+                  <ScrollArea className="h-full w-full">{children}</ScrollArea>
                 </div>
               </DefaultLayout>
             </main>

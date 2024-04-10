@@ -19,16 +19,18 @@ model RedditPost {
 }
 
 model CommentLeadReddit {
-    id           String     @id @default(uuid())
-    commentId    String
-    comment      String
-    action       String
-    score        Int
-    redditPostId String
-    goodLead     Boolean?
-    RedditPost   RedditPost @relation(fields: [redditPostId], references: [id])
-    createdAt    DateTime   @default(now()) @db.Timestamptz
-    updatedAt    DateTime   @default(now()) @updatedAt @db.Timestamptz
+    id                 String           @id @default(uuid())
+    commentId          String
+    comment            String
+    action             String
+    score              Int
+    redditPostId       String
+    goodLead           Boolean?
+    watchedSubredditId String
+    WatchedSubreddit   WatchedSubreddit @relation(fields: [watchedSubredditId], references: [id])
+    RedditPost         RedditPost       @relation(fields: [redditPostId], references: [id])
+    createdAt          DateTime         @default(now()) @db.Timestamptz
+    updatedAt          DateTime         @default(now()) @updatedAt @db.Timestamptz
 
     @@index([commentId])
 }
@@ -43,19 +45,21 @@ model Subreddit {
 }
 
 model WatchedSubreddit {
-    id             String       @id @default(uuid())
-    subreddits     Subreddit[]
-    productListId  String
-    productList    ProductList  @relation(fields: [productListId], references: [id])
-    createdAt      DateTime     @default(now()) @db.Timestamptz
-    updatedAt      DateTime     @default(now()) @updatedAt @db.Timestamptz
-    organizationId String
-    Organization   Organization @relation(fields: [organizationId], references: [id])
+    id                   String              @id @default(uuid())
+    title                String              @default("Subreddit Watchlist Item")
+    subreddits           Subreddit[]
+    searchConversationId String
+    searchConversation   SearchConversation  @relation(fields: [searchConversationId], references: [id])
+    createdAt            DateTime            @default(now()) @db.Timestamptz
+    updatedAt            DateTime            @default(now()) @updatedAt @db.Timestamptz
+    organizationId       String
+    Organization         Organization        @relation(fields: [organizationId], references: [id])
+    CommentLeadReddit    CommentLeadReddit[]
 }
 
-model ProductList {
+model SearchConversation {
     id               String             @id @default(uuid())
-    products         String
+    topic            String
     createdAt        DateTime           @default(now()) @db.Timestamptz
     updatedAt        DateTime           @default(now()) @updatedAt @db.Timestamptz
     WatchedSubreddit WatchedSubreddit[]

@@ -10,7 +10,7 @@ export async function ScanSubredditHot({
   const watchedSubreddit = await prisma.watchedSubreddit.findUnique({
     where: { id: watchedSubredditId },
     include: {
-      productList: true,
+      searchConversation: true,
       subreddits: true,
     },
   });
@@ -19,6 +19,7 @@ export async function ScanSubredditHot({
   if (!watchedSubreddit.subreddits.length) return console.log("no subreddits");
 
   watchedSubreddit.subreddits.forEach(async (subreddit) => {
+    console.log(subreddit.name);
     const posts = await reddit.getSubreddit(subreddit.name).getHot({
       limit: 1,
     });
@@ -28,7 +29,8 @@ export async function ScanSubredditHot({
       const pending_task = task.applyAsync([
         {
           subreddit: subreddit.name,
-          products: watchedSubreddit.productList.products,
+          watchedSubredditId: watchedSubreddit.id,
+          topic: watchedSubreddit.searchConversation.topic,
           title: post.title,
           postId: post.id,
         },
