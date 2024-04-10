@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  rabbit:
+    image: rabbitmq
+    ports:
+      - "5672:5672"
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+  growth-db:
+    image: postgres
+    restart: on-failure
+    container_name: growth-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - growth-db-data:/var/lib/postgresql/data
+
+volumes:
+  growth-db-data:
+  redis:

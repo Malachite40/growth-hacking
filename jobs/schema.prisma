@@ -1,0 +1,141 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model RedditPost {
+    id                String              @id @default(uuid())
+    postId            String
+    title             String
+    createdAt         DateTime            @default(now()) @db.Timestamptz
+    updatedAt         DateTime            @default(now()) @updatedAt @db.Timestamptz
+    CommentLeadReddit CommentLeadReddit[]
+
+    @@index([postId])
+}
+
+model CommentLeadReddit {
+    id           String     @id @default(uuid())
+    commentId    String
+    comment      String
+    action       String
+    score        Int
+    redditPostId String
+    goodLead     Boolean?
+    RedditPost   RedditPost @relation(fields: [redditPostId], references: [id])
+    createdAt    DateTime   @default(now()) @db.Timestamptz
+    updatedAt    DateTime   @default(now()) @updatedAt @db.Timestamptz
+
+    @@index([commentId])
+}
+
+model Subreddit {
+    id                 String            @id @default(uuid())
+    name               String
+    createdAt          DateTime          @default(now()) @db.Timestamptz
+    updatedAt          DateTime          @default(now()) @updatedAt @db.Timestamptz
+    WatchedSubreddit   WatchedSubreddit? @relation(fields: [watchedSubredditId], references: [id])
+    watchedSubredditId String?
+}
+
+model WatchedSubreddit {
+    id             String       @id @default(uuid())
+    subreddits     Subreddit[]
+    productListId  String
+    productList    ProductList  @relation(fields: [productListId], references: [id])
+    createdAt      DateTime     @default(now()) @db.Timestamptz
+    updatedAt      DateTime     @default(now()) @updatedAt @db.Timestamptz
+    organizationId String
+    Organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model ProductList {
+    id               String             @id @default(uuid())
+    products         String
+    createdAt        DateTime           @default(now()) @db.Timestamptz
+    updatedAt        DateTime           @default(now()) @updatedAt @db.Timestamptz
+    WatchedSubreddit WatchedSubreddit[]
+}
+
+model User {
+    id                     String                 @id @default(uuid())
+    selectedOrganizationId String?
+    firstName              String
+    lastName               String
+    username               String?
+    birthday               String?
+    gender                 String?
+    profileImageUrl        String?
+    passwordEnabled        Boolean
+    twoFactorEnabled       Boolean
+    lastSignInAt           DateTime               @db.Timestamptz
+    createdAt              DateTime               @default(now()) @db.Timestamptz
+    updatedAt              DateTime               @default(now()) @updatedAt @db.Timestamptz
+    primaryEmailAddress    String                 @unique
+    primaryEmailAddressId  String?
+    primaryPhoneNumberId   String?
+    primaryWeb3WalletId    String?
+    UserEmailAddresses     UserEmailAddress[]
+    UserPhoneNumber        UserPhoneNumber[]
+    OrganizationUserRole   OrganizationUserRole[]
+    Organizations          Organization[]
+    UserSettings           UserSettings?          @relation(fields: [userSettingsId], references: [id])
+    userSettingsId         String?
+}
+
+model UserSettings {
+    id                     String        @id @default(uuid())
+    userId                 String        @unique
+    selectedOrganizationId String?
+    selectedOrganization   Organization? @relation(fields: [selectedOrganizationId], references: [id])
+    createdAt              DateTime      @default(now()) @db.Timestamptz
+    updatedAt              DateTime      @default(now()) @updatedAt @db.Timestamptz
+    User                   User[]
+}
+
+model UserEmailAddress {
+    id           String @id @default(uuid())
+    emailAddress String
+    userId       String
+    verification String
+    User         User   @relation(fields: [userId], references: [id])
+}
+
+model UserPhoneNumber {
+    id     String @id @default(uuid())
+    number String
+    userId String
+    User   User   @relation(fields: [userId], references: [id])
+}
+
+model Organization {
+    id                    String                 @id @default(uuid())
+    name                  String
+    ownerId               String
+    Owner                 User                   @relation(fields: [ownerId], references: [id])
+    createdAt             DateTime               @default(now()) @db.Timestamptz
+    updatedAt             DateTime               @default(now()) @updatedAt @db.Timestamptz
+    OrganizationUserRoles OrganizationUserRole[]
+    UserSettings          UserSettings[]
+    WatchedSubreddit      WatchedSubreddit[]
+}
+
+model OrganizationUserRole {
+    organizationId String
+    userId         String
+    role           RoleType
+    organization   Organization @relation(fields: [organizationId], references: [id])
+    createdAt      DateTime     @default(now()) @db.Timestamptz
+    updatedAt      DateTime     @default(now()) @updatedAt @db.Timestamptz
+    user           User         @relation(fields: [userId], references: [id])
+
+    @@id([userId, organizationId])
+}
+
+enum RoleType {
+    OWNER
+}

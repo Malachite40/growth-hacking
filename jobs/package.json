@@ -1,0 +1,29 @@
+{
+  "name": "leads",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "rm -rf ./dist; tsc",
+    "watch-ts": "tsc --watch",
+    "watch-run": "nodemon --watch 'dist/**/*' -e js --exec 'node' dist/src/index.js",
+    "dev": "yarn update:db; yarn build; concurrently yarn:watch-ts yarn:watch-run",
+    "update:db": "cp ../prisma/schema.prisma schema.prisma; npx prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.11.0",
+    "@types/node": "^20.11.28",
+    "celery-node": "^0.5.9",
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.4.5",
+    "nodemon": "^3.1.0",
+    "openai": "^4.30.0",
+    "snoowrap": "^1.23.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.2"
+  },
+  "devDependencies": {
+    "prisma": "^5.11.0"
+  }
+}
