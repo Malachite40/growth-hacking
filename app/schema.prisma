@@ -51,7 +51,7 @@ model WatchedSubreddit {
     subreddits           Subreddit[]
     searchConversationId String
     searchConversation   SearchConversation  @relation(fields: [searchConversationId], references: [id])
-    lastScanAt           DateTime            @default(now()) @db.Timestamptz
+    lastScanAt           DateTime?           @db.Timestamptz
     createdAt            DateTime            @default(now()) @db.Timestamptz
     updatedAt            DateTime            @default(now()) @updatedAt @db.Timestamptz
     organizationId       String

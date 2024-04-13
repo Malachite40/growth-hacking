@@ -14,6 +14,14 @@ export const tasksRouter = createTRPCRouter({
         tokenBalance: ctx.tokenBalance,
         tokenCost: 1,
       })
+      await ctx.db.watchedSubreddit.update({
+        where: {
+          id: input.watchedSubredditId,
+        },
+        data: {
+          lastScanAt: new Date(),
+        },
+      })
       await ScanSubRedditHot({
         watchedSubredditId: input.watchedSubredditId,
       })
@@ -24,6 +32,14 @@ export const tasksRouter = createTRPCRouter({
       await ConsumeTokens({
         tokenBalance: ctx.tokenBalance,
         tokenCost: 1,
+      })
+      await ctx.db.watchedSubreddit.update({
+        where: {
+          id: input.watchedSubredditId,
+        },
+        data: {
+          lastScanAt: new Date(),
+        },
       })
       await ScanSubRedditNew({
         watchedSubredditId: input.watchedSubredditId,

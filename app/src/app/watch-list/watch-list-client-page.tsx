@@ -16,6 +16,7 @@ import { Button, buttonVariants } from "~/components/ui/button"
 import { Card, CardContent, CardHeader } from "~/components/ui/card"
 import { Input } from "~/components/ui/input"
 
+import { format } from "date-fns"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -439,7 +440,15 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <CardHeader>
-                  <div className="text-lg">{item.title}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-lg">{item.title}</div>
+                    {item.lastScanAt && (
+                      <div className="text-sm text-muted-foreground">
+                        Last Scanned:{" "}
+                        {format(item.lastScanAt, "MMMM do - hh:mma")}
+                      </div>
+                    )}
+                  </div>
                   <div className="cursor-pointer text-sm text-muted-foreground hover:underline hover:underline-offset-1">
                     {item.searchConversation.topic}
                   </div>
