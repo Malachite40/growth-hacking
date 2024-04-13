@@ -5,6 +5,7 @@ export const leadsRouter = createTRPCRouter({
   fetchAll: publicProcedure
     .input(
       z.object({
+        rating: z.number().optional().default(0),
         goodLead: z.boolean().optional(),
       }),
     )
@@ -12,7 +13,7 @@ export const leadsRouter = createTRPCRouter({
       const leads = await ctx.db.commentLeadReddit.findMany({
         where: {
           score: {
-            gte: 0,
+            gte: input.rating,
           },
           goodLead: input.goodLead ? input.goodLead : null,
         },

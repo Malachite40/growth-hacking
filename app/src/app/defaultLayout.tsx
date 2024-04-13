@@ -231,12 +231,12 @@ function DefaultLayout({
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <a href="/dashboard/profile">
+                <a href="/profile">
                   <DropdownMenuItem className="cursor-pointer">
                     Profile
                   </DropdownMenuItem>
                 </a>
-                <a href="/dashboard/organization">
+                <a href="/organization">
                   <DropdownMenuItem className="cursor-pointer">
                     Organization
                   </DropdownMenuItem>

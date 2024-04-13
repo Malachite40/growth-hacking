@@ -85,6 +85,11 @@ async function handleEvent(eventType: string, payload: any) {
         primaryEmailAddressId: userData.primary_email_address_id,
         primaryPhoneNumberId: userData.primary_phone_number_id,
         primaryWeb3WalletId: userData.primary_web3_wallet_id,
+        TokenBalance: {
+          create: {
+            count: 0,
+          },
+        },
         UserEmailAddresses: {
           create: userData.email_addresses.map((email: any) => ({
             id: email.id,

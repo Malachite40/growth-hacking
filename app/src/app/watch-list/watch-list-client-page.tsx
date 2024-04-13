@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Ellipsis,
+  Flame,
   LoaderCircle,
   Pencil,
   PlayCircle,
@@ -65,6 +66,7 @@ function WatchListClientPage({}: WatchListClientPageProps) {
   const { toast } = useToast()
 
   const scanSubredditHot = api.tasks.scanSubredditHot.useMutation()
+  const scanSubredditNew = api.tasks.scanSubredditNew.useMutation()
   const deleteSubredditWatchListItem =
     api.watchList.deleteWatchedSubreddit.useMutation({
       onSuccess: () => {
@@ -198,7 +200,6 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                       <FormControl>
                         <Textarea
                           onChangeCapture={(value) => {
-                            console.log({ value: value.currentTarget.value })
                             setPrompt(value.currentTarget.value)
                           }}
                           placeholder="people who might be interested in purchasing custom keycaps for their mechanical keyboard."
@@ -224,7 +225,7 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                           <FormDescription
                             className={cn(index !== 0 && "sr-only")}
                           >
-                            The subreddits you want to watch.
+                            The subreddits you want to search.
                           </FormDescription>
                           <FormControl>
                             <div className="group relative">
@@ -390,8 +391,19 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                       }}
                       className="cursor-pointer"
                     >
+                      <Flame className="mr-2 h-4 w-4" />
+                      <span>Scan (hot)</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        scanSubredditNew.mutate({
+                          watchedSubredditId: item.id,
+                        })
+                      }}
+                      className="cursor-pointer"
+                    >
                       <PlayCircle className="mr-2 h-4 w-4" />
-                      <span>Start scan</span>
+                      <span>Scan (new)</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem

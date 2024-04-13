@@ -1,3 +1,4 @@
+import { balancesRouter } from "./routers/balance"
 import { leadsRouter } from "./routers/leads"
 import { organizationRouter } from "./routers/organization"
 import { settingsRouter } from "./routers/settings"
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   watchList: watchListRouter,
   organization: organizationRouter,
   settings: settingsRouter,
+  balances: balancesRouter,
 })
 
 // export type definition of API

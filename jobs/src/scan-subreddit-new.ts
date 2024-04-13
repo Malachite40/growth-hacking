@@ -2,7 +2,7 @@ import { prisma } from "../lib/db/db";
 import reddit from "../lib/reddit/reddit";
 import { client } from "../lib/tasks/client";
 
-export async function ScanSubredditHot({
+export async function ScanSubredditNew({
   watchedSubredditId,
 }: {
   watchedSubredditId: string;
@@ -19,8 +19,8 @@ export async function ScanSubredditHot({
   if (!watchedSubreddit.subreddits.length) return console.log("no subreddits");
 
   watchedSubreddit.subreddits.forEach(async (subreddit) => {
-    const posts = await reddit.getSubreddit(subreddit.name).getHot({
-      limit: 5,
+    const posts = await reddit.getSubreddit(subreddit.name).getNew({
+      limit: 25,
     });
 
     posts.forEach((post) => {

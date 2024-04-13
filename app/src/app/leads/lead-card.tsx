@@ -136,7 +136,7 @@ function LeadCard({
         </CardHeader>
         <CardContent>
           <div className="mb mb-6 select-none text-sm text-muted-foreground ">
-            {redditPost.title}
+            {lead.reasoning}
           </div>
           <ScrollArea className="h-[160px] rounded-md border border-border px-4">
             <div className="overflow-x-hidden py-4 text-sm ">

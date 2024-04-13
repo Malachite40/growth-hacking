@@ -18,15 +18,6 @@ export const createTRPCContext = async (opts: {
   req: NextRequest
 }) => {
   const auth = getAuth(opts.req)
-  console.log({
-    auth,
-    req: opts.req,
-    exp:
-      auth &&
-      auth.sessionClaims?.exp &&
-      new Date(auth.sessionClaims.exp * 1000),
-  })
-
   return {
     db,
     auth,
@@ -71,6 +62,7 @@ const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
           organization: true,
         },
       },
+      TokenBalance: true,
       UserSettings: true,
     },
   })
@@ -103,6 +95,7 @@ const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
       roles: db_user.OrganizationUserRole,
       selectedOrganization: selectedOrganization,
       auth: ctx.auth,
+      tokenBalance: db_user.TokenBalance,
     },
   })
 })

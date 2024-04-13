@@ -10,7 +10,7 @@ import LeadCard from "./lead-card"
 export type LeadsClientPageProps = {}
 
 function LeadsClientPage({}: LeadsClientPageProps) {
-  const leads = api.leads.fetchAll.useQuery({})
+  const leads = api.leads.fetchAll.useQuery({ rating: 80 })
   const [offset, setOffset] = useState<number>(0)
   const ref = useRef(null)
   const undoRatingMutation = api.leads.undoRating.useMutation({
@@ -44,7 +44,7 @@ function LeadsClientPage({}: LeadsClientPageProps) {
   return (
     <div className="flex h-full flex-col p-10">
       <div className="flex min-h-[calc(100vh-300px)] flex-grow items-center justify-center">
-        <div className="relative flex max-h-[400px] min-h-[400px] min-w-[550px] max-w-[550px] flex-col gap-4">
+        <div className="relative flex max-h-[500px] min-h-[500px] min-w-[650px] max-w-[650px] flex-col gap-4">
           {leads.data &&
             leads.data.leads.map((lead, key) => {
               return (
@@ -77,15 +77,27 @@ function LeadsClientPage({}: LeadsClientPageProps) {
             (leads.data.leads.length < 1 ||
               offset - leads.data.leads.length <= 0) && (
               <Card className="flex h-full w-full flex-grow cursor-pointer flex-col items-center justify-center gap-4 border-primary p-4">
-                <div className="text-primary">We are searching...</div>
+                <div className="text-primary">{`Looks like you've reached the end of the leads.`}</div>
                 <ScanSearch
                   strokeWidth={0.7}
                   className="h-12 w-12 text-primary"
                 />
-                <div className="text-center text-sm text-muted-foreground">
-                  If you are seeing this for a long time you may need to update
-                  your search criteria. Try to change the filters or search for
-                  a different subreddit.
+                <div className="w-96 text-center text-sm text-muted-foreground">
+                  Start a search from your{" "}
+                  <a
+                    href="/watch-list"
+                    className="text-sm text-primary hover:underline hover:underline-offset-1"
+                  >
+                    watch list
+                  </a>{" "}
+                  {`to find more leads. Or view your favorite'd leads`}{" "}
+                  <a
+                    href="/favorites"
+                    className="text-sm text-primary hover:underline hover:underline-offset-1"
+                  >
+                    here
+                  </a>
+                  .
                 </div>
               </Card>
             )}

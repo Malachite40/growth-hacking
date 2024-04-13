@@ -1,23 +1,39 @@
 import { TRPCError } from "@trpc/server"
 import { z } from "zod"
+import { ConsumeTokens } from "~/lib/balance/util"
 import openai from "~/lib/openai/openai"
 import { ScanSubRedditHot } from "~/tasks/scan-subreddit-hot"
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc"
+import { ScanSubRedditNew } from "~/tasks/scan-subreddit-new"
+import { createTRPCRouter, protectedProcedure } from "../trpc"
 
 export const tasksRouter = createTRPCRouter({
-  scanSubredditHot: publicProcedure
+  scanSubredditHot: protectedProcedure
     .input(z.object({ watchedSubredditId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      await ConsumeTokens({
+        tokenBalance: ctx.tokenBalance,
+        tokenCost: 1,
+      })
       await ScanSubRedditHot({
         watchedSubredditId: input.watchedSubredditId,
       })
     }),
-
+  scanSubredditNew: protectedProcedure
+    .input(z.object({ watchedSubredditId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      await ConsumeTokens({
+        tokenBalance: ctx.tokenBalance,
+        tokenCost: 1,
+      })
+      await ScanSubRedditNew({
+        watchedSubredditId: input.watchedSubredditId,
+      })
+    }),
   fetchSubreddit: protectedProcedure
     .input(z.object({ prompt: z.string() }))
     .query(async ({ ctx, input }) => {
       const lead_response = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4-turbo",
         messages: [
           {
             role: "system",

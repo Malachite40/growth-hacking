@@ -23,11 +23,11 @@ export async function ScanRedditPost({
   }));
 
   const lead_response = await openai.chat.completions.create({
-    model: "gpt-4",
+    model: "gpt-4-turbo",
     messages: [
       {
         role: "system",
-        content: `You are a bot that helps find conversations on reddit that match certain criteria. You will be given a prompt in the form of, "Looking for conversations about" followed by the search. You will then be given a list of comments from a reddit post. You will need to identify conversations that may fit the search. Respond in with a JSON array of objects with the following keys: id, score. The id is the comment id and the score is a whole number between 0 and 100 representing how well the comment fits the search. Score 100 means the comment is a perfect match. Score 0 means the comment is not relevant. Score 50 means the comment is somewhat relevant.`,
+        content: `You are a bot that helps find conversations on reddit that match certain criteria. You will be given a prompt in the form of, "Looking for conversations about" followed by the search. You will then be given a list of comments from a reddit post. You will need to identify conversations that may fit the search. Respond in with a JSON array of objects with the following keys: id, score, reason. The id is the comment id and the score is a whole number between 0 and 100 representing how well the comment fits the search. Score 100 means the comment is a perfect match. Score 0 means the comment is not relevant. Score 80 means the comment is somewhat relevant. Be strict with your scoring. The reason is a string explaining why the comment fits the search. Only give a reason if the score is above 80.`,
       },
       {
         role: "user",
@@ -43,11 +43,10 @@ export async function ScanRedditPost({
 
   if (!answer) return console.log("no response");
 
-  console.log(answer);
-
   const hot_leads = JSON.parse(answer) as {
     id: string;
     score: number;
+    reason: string;
   }[];
 
   const reddit_post = await prisma.redditPost.create({
@@ -63,6 +62,7 @@ export async function ScanRedditPost({
       id: h.id,
       comment: comment.body,
       score: h.score,
+      reason: h.reason,
       action:
         process.env.REDDIT_BASE_URL +
         `/r/${subreddit}` +
@@ -79,9 +79,10 @@ export async function ScanRedditPost({
         commentId: h.id,
         comment: h.comment,
         score: h.score,
+        reasoning: h.reason,
       };
     }),
   });
 
-  return new_leads;
+  return `Created ${l.count} leads for ${subreddit} post ${postId}`;
 }

@@ -25,6 +25,7 @@ model CommentLeadReddit {
     action             String
     score              Int
     redditPostId       String
+    reasoning          String?
     goodLead           Boolean?
     watchedSubredditId String
     WatchedSubreddit   WatchedSubreddit @relation(fields: [watchedSubredditId], references: [id])
@@ -50,6 +51,7 @@ model WatchedSubreddit {
     subreddits           Subreddit[]
     searchConversationId String
     searchConversation   SearchConversation  @relation(fields: [searchConversationId], references: [id])
+    lastScanAt           DateTime            @default(now()) @db.Timestamptz
     createdAt            DateTime            @default(now()) @db.Timestamptz
     updatedAt            DateTime            @default(now()) @updatedAt @db.Timestamptz
     organizationId       String
@@ -66,29 +68,38 @@ model SearchConversation {
 }
 
 model User {
-    id                     String                 @id @default(uuid())
-    selectedOrganizationId String?
-    firstName              String
-    lastName               String
-    username               String?
-    birthday               String?
-    gender                 String?
-    profileImageUrl        String?
-    passwordEnabled        Boolean
-    twoFactorEnabled       Boolean
-    lastSignInAt           DateTime               @db.Timestamptz
-    createdAt              DateTime               @default(now()) @db.Timestamptz
-    updatedAt              DateTime               @default(now()) @updatedAt @db.Timestamptz
-    primaryEmailAddress    String                 @unique
-    primaryEmailAddressId  String?
-    primaryPhoneNumberId   String?
-    primaryWeb3WalletId    String?
-    UserEmailAddresses     UserEmailAddress[]
-    UserPhoneNumber        UserPhoneNumber[]
-    OrganizationUserRole   OrganizationUserRole[]
-    Organizations          Organization[]
-    UserSettings           UserSettings?          @relation(fields: [userSettingsId], references: [id])
-    userSettingsId         String?
+    id                    String                 @id @default(uuid())
+    firstName             String
+    lastName              String
+    username              String?
+    birthday              String?
+    gender                String?
+    profileImageUrl       String?
+    passwordEnabled       Boolean
+    twoFactorEnabled      Boolean
+    lastSignInAt          DateTime               @db.Timestamptz
+    createdAt             DateTime               @default(now()) @db.Timestamptz
+    updatedAt             DateTime               @default(now()) @updatedAt @db.Timestamptz
+    primaryEmailAddress   String                 @unique
+    primaryEmailAddressId String?
+    primaryPhoneNumberId  String?
+    primaryWeb3WalletId   String?
+    UserEmailAddresses    UserEmailAddress[]
+    UserPhoneNumber       UserPhoneNumber[]
+    OrganizationUserRole  OrganizationUserRole[]
+    Organizations         Organization[]
+    UserSettings          UserSettings?          @relation(fields: [userSettingsId], references: [id])
+    userSettingsId        String?
+    TokenBalance          UserTokenBalance       @relation(fields: [userTokenBalanceId], references: [id])
+    userTokenBalanceId    String
+}
+
+model UserTokenBalance {
+    id        String   @id @default(uuid())
+    count     Int
+    createdAt DateTime @default(now()) @db.Timestamptz
+    updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz
+    User      User[]
 }
 
 model UserSettings {
