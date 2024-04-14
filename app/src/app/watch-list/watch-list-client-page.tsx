@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader } from "~/components/ui/card"
 import { Input } from "~/components/ui/input"
 
 import { format } from "date-fns"
+import { parseAsInteger, useQueryState } from "nuqs"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -43,11 +44,13 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form"
+import Paginate from "~/components/ui/paginate"
 import { Separator } from "~/components/ui/separator"
 import { Textarea } from "~/components/ui/textarea"
 import { useToast } from "~/components/ui/use-toast"
 import { cn } from "~/lib/utils"
 import { api } from "~/trpc/react"
+
 export type WatchListClientPageProps = {}
 
 const formSchema = z.object({
@@ -58,12 +61,21 @@ const formSchema = z.object({
 })
 
 function WatchListClientPage({}: WatchListClientPageProps) {
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1))
+
   const [isOpen, setIsOpen] = useState(false)
   const [searchEnabled, setSearchEnabled] = useState(false)
   const [subredditSuggestions, setSubredditSuggestions] = useState<string[]>([])
   const [prompt, setPrompt] = useState("")
   const settings = api.settings.fetch.useQuery()
-  const subredditWatchListItems = api.watchList.fetch.useQuery()
+  const subredditWatchListItems = api.watchList.fetchAll.useInfiniteQuery(
+    {},
+    {
+      getNextPageParam: (lastPage) => {
+        return lastPage.nextCursor
+      },
+    },
+  )
   const { toast } = useToast()
 
   const scanSubredditHot = api.tasks.scanSubredditHot.useMutation()
@@ -144,7 +156,7 @@ function WatchListClientPage({}: WatchListClientPageProps) {
   }, [similarSubredditQuery.data])
 
   return (
-    <div className="max-w-4xl p-10">
+    <div className="p-10">
       <AlertDialog open={isOpen}>
         <AlertDialogTrigger
           className={cn(
@@ -366,109 +378,132 @@ function WatchListClientPage({}: WatchListClientPageProps) {
 
       <div className="flex flex-col gap-4">
         {subredditWatchListItems.data &&
-          subredditWatchListItems.data.watchedSubreddit.map((item) => {
-            return (
-              <Card
-                key={item.id}
-                className={`relative duration-500 ${scanSubredditHot.isPending ? "border-primary" : ""}`}
-              >
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    className={cn(
-                      buttonVariants({
-                        variant: "ghost",
-                      }),
-                      "absolute right-2 top-2",
-                    )}
-                  >
-                    <Ellipsis className="h-5 w-5" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        scanSubredditHot.mutate({
-                          watchedSubredditId: item.id,
-                        })
-                      }}
-                      className="cursor-pointer"
+          subredditWatchListItems.data.pages[page - 1] &&
+          subredditWatchListItems.data.pages[page - 1]?.watchedSubreddit.map(
+            (item) => {
+              return (
+                <Card
+                  key={item.id}
+                  className={`relative duration-500 ${scanSubredditHot.isPending ? "border-primary" : ""}`}
+                >
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      className={cn(
+                        buttonVariants({
+                          variant: "ghost",
+                        }),
+                        "absolute right-2 top-2",
+                      )}
                     >
-                      <Flame className="mr-2 h-4 w-4" />
-                      <span>Scan (hot)</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        scanSubredditNew.mutate({
-                          watchedSubredditId: item.id,
-                        })
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <PlayCircle className="mr-2 h-4 w-4" />
-                      <span>Scan (new)</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => {
-                        form.reset({
-                          watchedSubredditId: item.id,
-                          subreddits: item.subreddits.map((subreddit) => {
-                            return { value: subreddit.name }
-                          }),
-                          topic: item.searchConversation.topic,
-                          title: item.title,
-                        })
-                        setPrompt(item.searchConversation.topic)
-                        setIsOpen(true)
-                      }}
-                    >
-                      <Pencil className="mr-2 h-4 w-4" />
-                      <span>Edit</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={async () => {
-                        deleteSubredditWatchListItem.mutate({
-                          watchedSubredditId: item.id,
-                          searchConversationId: item.searchConversation.id,
-                        })
-                      }}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      <span>Delete</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <div className="text-lg">{item.title}</div>
-                    {item.lastScanAt && (
-                      <div className="text-sm text-muted-foreground">
-                        Last Scanned:{" "}
-                        {format(item.lastScanAt, "MMMM do - hh:mma")}
-                      </div>
-                    )}
-                  </div>
-                  <div className="cursor-pointer text-sm text-muted-foreground hover:underline hover:underline-offset-1">
-                    {item.searchConversation.topic}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {item.subreddits.map((subreddit) => {
-                      // TODO:: fix div inside p tag issue
-                      return (
-                        <Badge variant={"secondary"} key={subreddit.name}>
-                          {subreddit.name}
-                        </Badge>
-                      )
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
+                      <Ellipsis className="h-5 w-5" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          scanSubredditHot.mutate({
+                            watchedSubredditId: item.id,
+                          })
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Flame className="mr-2 h-4 w-4" />
+                        <span>Scan (hot)</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          scanSubredditNew.mutate({
+                            watchedSubredditId: item.id,
+                          })
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <PlayCircle className="mr-2 h-4 w-4" />
+                        <span>Scan (new)</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => {
+                          form.reset({
+                            watchedSubredditId: item.id,
+                            subreddits: item.subreddits.map((subreddit) => {
+                              return { value: subreddit.name }
+                            }),
+                            topic: item.searchConversation.topic,
+                            title: item.title,
+                          })
+                          setPrompt(item.searchConversation.topic)
+                          setIsOpen(true)
+                        }}
+                      >
+                        <Pencil className="mr-2 h-4 w-4" />
+                        <span>Edit</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={async () => {
+                          deleteSubredditWatchListItem.mutate({
+                            watchedSubredditId: item.id,
+                            searchConversationId: item.searchConversation.id,
+                          })
+                        }}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Delete</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <div className="text-lg">{item.title}</div>
+                      {item.lastScanAt && (
+                        <div className="text-sm text-muted-foreground">
+                          Last Scanned:{" "}
+                          {format(item.lastScanAt, "MMMM do - hh:mma")}
+                        </div>
+                      )}
+                    </div>
+                    <div className="cursor-pointer text-sm text-muted-foreground hover:underline hover:underline-offset-1">
+                      {item.searchConversation.topic}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {item.subreddits.map((subreddit) => {
+                        // TODO:: fix div inside p tag issue
+                        return (
+                          <Badge variant={"secondary"} key={subreddit.name}>
+                            {subreddit.name}
+                          </Badge>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            },
+          )}
       </div>
+      <Paginate
+        hasNextPage={subredditWatchListItems.hasNextPage ?? false}
+        fetchNextPage={subredditWatchListItems.fetchNextPage}
+        totalCount={
+          subredditWatchListItems.data &&
+          subredditWatchListItems.data.pages[0] &&
+          subredditWatchListItems.data.pages.length > 0
+            ? subredditWatchListItems.data.pages[0].totalCount
+            : 0
+        }
+        pageLength={
+          subredditWatchListItems.data
+            ? subredditWatchListItems.data.pages.length
+            : 0
+        }
+        pages={
+          subredditWatchListItems.data ? subredditWatchListItems.data.pages : []
+        }
+        data={subredditWatchListItems.data}
+      />
     </div>
   )
 }

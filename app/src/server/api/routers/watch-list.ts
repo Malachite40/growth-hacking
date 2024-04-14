@@ -34,18 +34,42 @@ export const watchListRouter = createTRPCRouter({
       return { watchedSubreddit }
     }),
 
-  fetch: protectedProcedure.query(async ({ ctx }) => {
-    const watchedSubreddit = await ctx.db.watchedSubreddit.findMany({
-      where: {
-        organizationId: ctx.selectedOrganization.id,
-      },
-      include: {
-        searchConversation: true,
-        subreddits: true,
-      },
-    })
-    return { watchedSubreddit }
-  }),
+  fetchAll: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(10),
+        cursor: z.string().nullish(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const watchedSubreddit = await ctx.db.watchedSubreddit.findMany({
+        where: {
+          organizationId: ctx.selectedOrganization.id,
+        },
+        include: {
+          searchConversation: true,
+          subreddits: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+        take: input.limit + 1,
+      })
+
+      const totalCount = await ctx.db.watchedSubreddit.count({
+        where: {
+          organizationId: ctx.selectedOrganization.id,
+        },
+      })
+
+      let nextCursor: typeof input.cursor | undefined = undefined
+      if (watchedSubreddit.length > input.limit) {
+        const nextItem = watchedSubreddit.pop()
+        nextCursor = nextItem!.id
+      }
+      return { watchedSubreddit, nextCursor, totalCount }
+    }),
 
   deleteWatchedSubreddit: protectedProcedure
     .input(

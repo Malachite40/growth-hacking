@@ -10,12 +10,15 @@ import LeadCard from "./lead-card"
 export type LeadsClientPageProps = {}
 
 function LeadsClientPage({}: LeadsClientPageProps) {
-  const leads = api.leads.fetchAll.useQuery({ rating: 80 })
+  const leadsQuery = api.leads.fetchAll.useQuery({ rating: 80 })
+  const settingsQuery = api.settings.fetch.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  })
   const [offset, setOffset] = useState<number>(0)
   const ref = useRef(null)
   const undoRatingMutation = api.leads.undoRating.useMutation({
     onSuccess: () => {
-      leads.refetch()
+      leadsQuery.refetch()
       toast("Undo Success", {
         description: "You can rate it again now!",
       })
@@ -38,15 +41,21 @@ function LeadsClientPage({}: LeadsClientPageProps) {
   })
 
   useEffect(() => {
+    if (!settingsQuery.data) return
+    leadsQuery.refetch()
+  }, [settingsQuery.data])
+
+  useEffect(() => {
     setOffset(0)
-  }, [leads.data])
+  }, [leadsQuery.data])
 
   return (
     <div className="flex h-full flex-col p-10">
       <div className="flex min-h-[calc(100vh-300px)] flex-grow items-center justify-center">
         <div className="relative flex max-h-[500px] min-h-[500px] min-w-[650px] max-w-[650px] flex-col gap-4">
-          {leads.data &&
-            leads.data.leads.map((lead, key) => {
+          {leadsQuery.data &&
+            leadsQuery.data &&
+            leadsQuery.data.leads.map((lead, key) => {
               return (
                 <LeadCard
                   parentRef={ref}
@@ -73,34 +82,35 @@ function LeadsClientPage({}: LeadsClientPageProps) {
               )
             })}
 
-          {leads.data &&
-            (leads.data.leads.length < 1 ||
-              offset - leads.data.leads.length <= 0) && (
-              <Card className="flex h-full w-full flex-grow cursor-pointer flex-col items-center justify-center gap-4 border-primary p-4">
-                <div className="text-primary">{`Looks like you've reached the end of the leads.`}</div>
-                <ScanSearch
-                  strokeWidth={0.7}
-                  className="h-12 w-12 text-primary"
-                />
-                <div className="w-96 text-center text-sm text-muted-foreground">
-                  Start a search from your{" "}
-                  <a
-                    href="/watch-list"
-                    className="text-sm text-primary hover:underline hover:underline-offset-1"
-                  >
-                    watch list
-                  </a>{" "}
-                  {`to find more leads. Or view your favorite'd leads`}{" "}
-                  <a
-                    href="/favorites"
-                    className="text-sm text-primary hover:underline hover:underline-offset-1"
-                  >
-                    here
-                  </a>
-                  .
-                </div>
-              </Card>
-            )}
+          {((leadsQuery.data &&
+            leadsQuery.data &&
+            leadsQuery.data?.leads.length < 1) ||
+            offset - (leadsQuery.data?.leads.length || 0) <= 0) && (
+            <Card className="flex h-full w-full flex-grow cursor-pointer flex-col items-center justify-center gap-4 border-primary p-4">
+              <div className="text-primary">{`Looks like you've reached the end of the leads.`}</div>
+              <ScanSearch
+                strokeWidth={0.7}
+                className="h-12 w-12 text-primary"
+              />
+              <div className="w-96 text-center text-sm text-muted-foreground">
+                Start a search from your{" "}
+                <a
+                  href="/watch-list"
+                  className="text-sm text-primary hover:underline hover:underline-offset-1"
+                >
+                  watch list
+                </a>{" "}
+                {`to find more leads. Or view your favorite'd leads`}{" "}
+                <a
+                  href="/favorites"
+                  className="text-sm text-primary hover:underline hover:underline-offset-1"
+                >
+                  here
+                </a>
+                .
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </div>

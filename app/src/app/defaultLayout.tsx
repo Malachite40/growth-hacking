@@ -2,15 +2,22 @@
 
 import { SignedIn, SignedOut, useClerk } from "@clerk/nextjs"
 import { Organization, User } from "@prisma/client"
-import { Cctv, Inbox, LucideIcon, PlusIcon, ThumbsUp } from "lucide-react"
+import {
+  Building2,
+  Cctv,
+  Inbox,
+  LucideIcon,
+  PlusIcon,
+  ThumbsUp,
+} from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import CreateOrganizationModal from "~/components/create-org-modal"
 import { Nav } from "~/components/nav"
-import { Avatar } from "~/components/ui/avatar"
 import { buttonVariants } from "~/components/ui/button"
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -127,20 +134,24 @@ function DefaultLayout({
               {!isCollapsed ? (
                 <DropdownMenuTrigger
                   className={cn(
-                    "w-full",
+                    "flex  w-full",
                     buttonVariants({
                       variant: "outline",
                     }),
                   )}
                 >
-                  {(settings.data && settings.data.organization?.name) ||
-                    "Organization"}
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
+                    <div className="">
+                      {settings.data
+                        ? settings.data.organization?.name
+                        : "Organization"}
+                    </div>
+                  </div>
                 </DropdownMenuTrigger>
               ) : (
-                <DropdownMenuTrigger className="m-2 flex w-full items-center justify-center rounded-md bg-primary py-2 font-semibold text-background">
-                  {settings.data && settings.data.organization
-                    ? settings.data.organization?.name.charAt(0)
-                    : "O"}
+                <DropdownMenuTrigger className="m-2 flex w-full items-center justify-center rounded-md border border-border py-2 font-semibold hover:bg-secondary">
+                  <Building2 className="h-4 w-4" />
                 </DropdownMenuTrigger>
               )}
               <DropdownMenuContent align="start">
@@ -151,21 +162,20 @@ function DefaultLayout({
                   (o) => o.id !== settings.data.organization?.id,
                 ).length > 0 ? (
                   <>
-                    {organizations.data.organizations
-                      .filter((o) => o.id !== settings.data.organization?.id)
-                      .map((org) => (
-                        <DropdownMenuItem
-                          className="cursor-pointer"
-                          key={org.id}
-                          onClick={() => {
-                            setDefaultOrganization.mutate({
-                              organizationId: org.id,
-                            })
-                          }}
-                        >
-                          {org.name}
-                        </DropdownMenuItem>
-                      ))}
+                    {organizations.data.organizations.map((org) => (
+                      <DropdownMenuCheckboxItem
+                        className="cursor-pointer"
+                        checked={settings.data.organization?.id === org.id}
+                        key={org.id}
+                        onClick={() => {
+                          setDefaultOrganization.mutate({
+                            organizationId: org.id,
+                          })
+                        }}
+                      >
+                        {org.name}
+                      </DropdownMenuCheckboxItem>
+                    ))}
                     <DropdownMenuSeparator />
                   </>
                 ) : null}
@@ -203,30 +213,16 @@ function DefaultLayout({
           minSize={30}
         >
           <div className="flex h-[52px] w-full items-center justify-between px-4 py-2">
-            <div className="flex h-full items-center justify-center font-semibold">
-              {navLinks.find((nl) => nl.variant === "default")?.title}
-            </div>
+            <div className="flex h-full items-center justify-center font-semibold"></div>
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <Avatar>
-                  {/* <AvatarImage
-                    src={
-                      user && user.profileImageUrl
-                        ? user.profileImageUrl
-                        : undefined
-                    }
-                  /> */}
-                  {/* <AvatarFallback>
-                    {user && user.firstName && user.lastName
-                      ? `${user.firstName.charAt(0)} ${user.lastName.charAt(0)}`
-                      : "NA"}
-                  </AvatarFallback> */}
-                  <div className="flex h-full w-full items-center justify-center rounded-full text-primary duration-200 hover:bg-primary hover:text-background">
+                <div className={buttonVariants({ variant: "ghost" })}>
+                  <div className="flex h-full w-full items-center justify-center rounded-full  ">
                     {user && user.firstName && user.lastName
                       ? `${user.firstName.charAt(0)} ${user.lastName.charAt(0)}`
                       : "NA"}
                   </div>
-                </Avatar>
+                </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
