@@ -76,7 +76,7 @@ function CreateOrganizationModal({
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} />
+                    <Input placeholder="My company name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

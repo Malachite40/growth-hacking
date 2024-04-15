@@ -231,11 +231,6 @@ function DefaultLayout({
                     Profile
                   </DropdownMenuItem>
                 </a>
-                <a href="/organization">
-                  <DropdownMenuItem className="cursor-pointer">
-                    Organization
-                  </DropdownMenuItem>
-                </a>
                 <SignedIn>
                   <div
                     onClick={() => {
