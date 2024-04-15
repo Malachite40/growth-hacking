@@ -157,10 +157,7 @@ function DefaultLayout({
               <DropdownMenuContent align="start">
                 {organizations.data &&
                 settings.data &&
-                organizations.data.organizations.length > 0 &&
-                organizations.data.organizations.filter(
-                  (o) => o.id !== settings.data.organization?.id,
-                ).length > 0 ? (
+                organizations.data.organizations.length > 0 ? (
                   <>
                     {organizations.data.organizations.map((org) => (
                       <DropdownMenuCheckboxItem
