@@ -1,4 +1,4 @@
-import { ClerkProvider } from "@clerk/nextjs"
+import { ClerkProvider, RedirectToSignIn } from "@clerk/nextjs"
 import { Inter } from "next/font/google"
 import { cookies } from "next/headers"
 import { ScrollArea } from "~/components/ui/scroll-area"
@@ -27,7 +27,7 @@ export default async function RootLayout({
   const { user, organizations, selectedOrganization } = await getUser()
   const layout = cookieStore.get("react-resizable-panels:layout")
   const collapsed = cookieStore.get("react-resizable-panels:collapsed")
-
+  if (!user) return <RedirectToSignIn />
   return (
     <ClerkProvider>
       <TRPCReactProvider>
