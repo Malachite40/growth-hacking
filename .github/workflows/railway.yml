@@ -33,6 +33,6 @@ jobs:
 
       - name: Deploy Email Workers
         run: |
-          railway up -s "growth-hacking"
+          railway up -s "Growth App"
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
