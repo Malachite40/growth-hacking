@@ -189,7 +189,9 @@ function DefaultLayout({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
           <Separator />
+
           <Nav
             isCollapsed={isCollapsed}
             links={
