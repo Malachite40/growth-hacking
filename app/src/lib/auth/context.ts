@@ -2,7 +2,7 @@ import { currentUser } from "@clerk/nextjs/server"
 import { db } from "~/server/db"
 
 export async function getUser() {
-  let user = await currentUser()
+  const user = await currentUser()
 
   if (!user)
     return {
