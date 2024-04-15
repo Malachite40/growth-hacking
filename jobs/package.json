@@ -9,7 +9,8 @@
     "watch-ts": "tsc --watch",
     "watch-run": "nodemon --watch 'dist/**/*' -e js --exec 'node' dist/src/index.js",
     "dev": "yarn update:db; yarn build; concurrently yarn:watch-ts yarn:watch-run",
-    "update:db": "cp ../prisma/schema.prisma schema.prisma; npx prisma generate"
+    "update:db": "cp ../prisma/schema.prisma schema.prisma; npx prisma generate",
+    "start:worker": "yarn build; node dist/src/index.js"
   },
   "dependencies": {
     "@prisma/client": "^5.11.0",
