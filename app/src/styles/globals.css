@@ -35,66 +35,49 @@
     
     --radius: 0.5rem;
   } */
-  :root  {
-    --background: 157.50 100.00% 1.57%;
-    --foreground: 159.47 100.00% 92.55%;
-    
-    --primary: 159.29 100.00% 50.00%;
-    --primary-foreground: 158.95 100.00% 11.18%;
-    
-    --card: 157.50 100.00% 1.57%;
-    --card-foreground: 159.47 100.00% 92.55%;
-    
-    --popover: 157.50 100.00% 1.57%;
-    --popover-foreground: 159.47 100.00% 92.55%;
-    
-    --secondary: 159.10 100.00% 17.45%;
-    --secondary-foreground: 0.00 0.00% 100.00%;
-    
-    --muted: 157.50 13.79% 11.37%;
-    --muted-foreground: 150.00 1.60% 50.98%;
-     
-    --accent: 159.10 100.00% 17.45%;
-    --accent-foreground: 159.47 100.00% 92.55%;
-    
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    
-    --border: 158.95 100.00% 11.18%;
-    --input: 0.00 0.00% 14.90%;
-    --ring: 159.29 100.00% 50.00%;
-    
+  :root {
+    --background: 231 15% 18%;
+    --foreground: 60 30% 96%;
+    --muted: 225 27% 51%;  /* Updated to use the 'Comment' color as muted background */
+    --muted-foreground: 60 30% 96%;  /* Same as foreground for consistency */
+    --card: 231 15% 18%;  /* Same as background */
+    --card-foreground: 60 30% 96%;  /* Same as foreground */
+    --popover: 231 15% 18%;  /* Same as background */
+    --popover-foreground: 60 30% 96%;  /* Same as foreground */
+    --border: 225 27% 51%;  /* Using 'Comment' for a slightly different border color */
+    --input: 225 27% 51%;  /* Using 'Comment' for input borders as well */
+    --primary: 326 100% 74%;  /* Using 'Pink' for primary buttons */
+    --primary-foreground: 231 15% 18%;  /* Contrasting with 'Background' color */
+    --secondary: 265 89% 78%;  /* Using 'Purple' for secondary buttons */
+    --secondary-foreground: 231 15% 18%;  /* Contrasting with 'Background' color */
+    --accent: 191 97% 77%;  /* Using 'Cyan' for accents */
+    --accent-foreground: 231 15% 18%;  /* Contrasting with 'Background' color */
+    --destructive: 0 100% 67%;  /* Using provided 'Red' for destructive actions */
+    --destructive-foreground: 60 30% 96%;  /* Same as foreground for consistency */
+    --ring: 265 89% 78%;  /* Using 'Purple' for focus ring */
     --radius: 0.5rem;
   }
+
   :dark {
-    --background: 157.50 100.00% 1.57%;
-    --foreground: 159.47 100.00% 92.55%;
-    
-    --primary: 159.29 100.00% 50.00%;
-    --primary-foreground: 158.95 100.00% 11.18%;
-    
-    --card: 157.50 100.00% 1.57%;
-    --card-foreground: 159.47 100.00% 92.55%;
-    
-    --popover: 157.50 100.00% 1.57%;
-    --popover-foreground: 159.47 100.00% 92.55%;
-    
-    --secondary: 159.10 100.00% 17.45%;
-    --secondary-foreground: 0.00 0.00% 100.00%;
-    
-    --muted: 157.50 13.79% 11.37%;
-    --muted-foreground: 150.00 1.60% 50.98%;
-     
-    --accent: 159.10 100.00% 17.45%;
-    --accent-foreground: 159.47 100.00% 92.55%;
-    
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    
-    --border: 158.95 100.00% 11.18%;
-    --input: 0.00 0.00% 14.90%;
-    --ring: 159.29 100.00% 50.00%;
-    
+    --background: 231 15% 18%;
+    --foreground: 60 30% 96%;
+    --muted: 225 27% 51%;  /* Updated to use the 'Comment' color as muted background */
+    --muted-foreground: 60 30% 96%;  /* Same as foreground for consistency */
+    --card: 231 15% 18%;  /* Same as background */
+    --card-foreground: 60 30% 96%;  /* Same as foreground */
+    --popover: 231 15% 18%;  /* Same as background */
+    --popover-foreground: 60 30% 96%;  /* Same as foreground */
+    --border: 225 27% 51%;  /* Using 'Comment' for a slightly different border color */
+    --input: 225 27% 51%;  /* Using 'Comment' for input borders as well */
+    --primary: 326 100% 74%;  /* Using 'Pink' for primary buttons */
+    --primary-foreground: 231 15% 18%;  /* Contrasting with 'Background' color */
+    --secondary: 265 89% 78%;  /* Using 'Purple' for secondary buttons */
+    --secondary-foreground: 231 15% 18%;  /* Contrasting with 'Background' color */
+    --accent: 191 97% 77%;  /* Using 'Cyan' for accents */
+    --accent-foreground: 231 15% 18%;  /* Contrasting with 'Background' color */
+    --destructive: 0 100% 67%;  /* Using provided 'Red' for destructive actions */
+    --destructive-foreground: 60 30% 96%;  /* Same as foreground for consistency */
+    --ring: 265 89% 78%;  /* Using 'Purple' for focus ring */
     --radius: 0.5rem;
   }
   

@@ -6,7 +6,6 @@ import { buttonVariants } from "~/components/ui/button"
 import { Card, CardContent, CardHeader } from "~/components/ui/card"
 import Paginate from "~/components/ui/paginate"
 import { ScrollArea } from "~/components/ui/scroll-area"
-import { Separator } from "~/components/ui/separator"
 import { cn } from "~/lib/utils"
 import { api } from "~/trpc/react"
 
@@ -27,6 +26,7 @@ function FavoritesPage({}: FavoritesPageProps) {
       },
     },
   )
+
   const settingsQuery = api.settings.fetch.useQuery(undefined, {
     refetchOnWindowFocus: false,
   })
@@ -38,7 +38,7 @@ function FavoritesPage({}: FavoritesPageProps) {
   return (
     <div className="p-10">
       <div className="text-xl">Leads</div>
-      <Separator className="my-4" />
+      <div className="my-4 flex w-full" />
 
       <div className="flex flex-col gap-4">
         {leadsQuery.data &&

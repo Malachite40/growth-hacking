@@ -3,6 +3,7 @@
 import { ScanSearch } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
+import BasicToast from "~/components/ui/basic-toast"
 import { Card } from "~/components/ui/card"
 import { api } from "~/trpc/react"
 import LeadCard from "./lead-card"
@@ -19,24 +20,30 @@ function LeadsClientPage({}: LeadsClientPageProps) {
   const undoRatingMutation = api.leads.undoRating.useMutation({
     onSuccess: () => {
       leadsQuery.refetch()
-      toast("Undo Success", {
-        description: "You can rate it again now!",
-      })
+      toast(
+        <BasicToast
+          title="Undo Success"
+          description={"You can rate it again now!"}
+        />,
+      )
     },
   })
   const rateLeadMutation = api.leads.rateLead.useMutation({
     onSuccess: (data) => {
-      toast("Success", {
-        description: "Lead has been rated",
-        action: {
-          label: "Undo",
-          onClick: () => {
-            undoRatingMutation.mutate({
-              leadId: data.lead.id,
-            })
-          },
-        },
-      })
+      toast(
+        <BasicToast
+          description={"Lead has been rated"}
+          title="Success"
+          button={{
+            label: "Undo",
+            onClick: () => {
+              undoRatingMutation.mutate({
+                leadId: data.lead.id,
+              })
+            },
+          }}
+        />,
+      )
     },
   })
 
@@ -86,24 +93,21 @@ function LeadsClientPage({}: LeadsClientPageProps) {
             leadsQuery.data &&
             leadsQuery.data?.leads.length < 1) ||
             offset - (leadsQuery.data?.leads.length || 0) <= 0) && (
-            <Card className="flex h-full w-full flex-grow cursor-pointer flex-col items-center justify-center gap-4 border-primary p-4">
-              <div className="text-primary">{`Looks like you've reached the end of the leads.`}</div>
-              <ScanSearch
-                strokeWidth={0.7}
-                className="h-12 w-12 text-primary"
-              />
+            <Card className="flex h-full w-full flex-grow cursor-pointer flex-col items-center justify-center gap-4 border-border p-4">
+              <div className="text-accent">{`Looks like you've reached the end of the leads.`}</div>
+              <ScanSearch strokeWidth={0.7} className="h-12 w-12 text-accent" />
               <div className="w-96 text-center text-sm text-muted-foreground">
                 Start a search from your{" "}
                 <a
                   href="/watch-list"
-                  className="text-sm text-primary hover:underline hover:underline-offset-1"
+                  className="text-sm text-accent hover:underline hover:underline-offset-1"
                 >
                   watch list
                 </a>{" "}
                 {`to find more leads. Or view your favorite'd leads`}{" "}
                 <a
                   href="/favorites"
-                  className="text-sm text-primary hover:underline hover:underline-offset-1"
+                  className="text-sm text-accent hover:underline hover:underline-offset-1"
                 >
                   here
                 </a>

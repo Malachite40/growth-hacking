@@ -45,6 +45,7 @@ export const watchListRouter = createTRPCRouter({
       const watchedSubreddit = await ctx.db.watchedSubreddit.findMany({
         where: {
           organizationId: ctx.selectedOrganization.id,
+          deletedAt: null,
         },
         include: {
           searchConversation: true,
@@ -79,9 +80,12 @@ export const watchListRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.watchedSubreddit.delete({
+      await ctx.db.watchedSubreddit.update({
         where: {
           id: input.watchedSubredditId,
+        },
+        data: {
+          deletedAt: new Date(),
         },
       })
       await ctx.db.searchConversation.delete({

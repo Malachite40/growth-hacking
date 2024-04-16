@@ -1,3 +1,4 @@
+import { ScanStatus } from "@prisma/client";
 import { prisma } from "../lib/db/db";
 import openai from "../lib/openai/openai";
 import reddit from "../lib/reddit/reddit";
@@ -8,13 +9,17 @@ export async function ScanRedditPost({
   title,
   postId,
   watchedSubredditId,
+  subredditScanRecordId,
 }: {
   subreddit: string;
   topic: string;
   title: string;
   postId: string;
   watchedSubredditId: string;
+  subredditScanRecordId: string;
 }) {
+  if (!subredditScanRecordId) return console.log("no subredditScanRecordId");
+
   const comments = await reddit.getSubmission(postId).comments.fetchAll();
 
   const comments_map = comments.map((c) => ({
@@ -43,11 +48,30 @@ export async function ScanRedditPost({
 
   if (!answer) return console.log("no response");
 
-  const hot_leads = JSON.parse(answer) as {
+  let hot_leads: {
     id: string;
     score: number;
     reason: string;
-  }[];
+  }[] = [];
+
+  try {
+    hot_leads = JSON.parse(answer) as {
+      id: string;
+      score: number;
+      reason: string;
+    }[];
+  } catch {
+    const subredditScanRecord = await prisma.subredditScanRecord.update({
+      where: { id: subredditScanRecordId },
+      data: {
+        scanStatus: ScanStatus.ERROR,
+        totalErrors: {
+          increment: 1,
+        },
+      },
+    });
+    return `Error parsing response for ${subreddit} post ${postId} \n\n ${answer}`;
+  }
 
   const reddit_post = await prisma.redditPost.create({
     data: {
@@ -83,6 +107,34 @@ export async function ScanRedditPost({
       };
     }),
   });
+
+  const leadsRatedAbove80 = new_leads.filter((h) => h.score > 80).length;
+
+  const subredditScanRecord = await prisma.subredditScanRecord.update({
+    where: { id: subredditScanRecordId },
+    data: {
+      scanStatus: ScanStatus.PENDING,
+      potentialLeads: {
+        increment: leadsRatedAbove80,
+      },
+      totalPostsScanned: {
+        increment: 1,
+      },
+    },
+  });
+
+  if (
+    subredditScanRecord.totalPostsToScan <=
+    subredditScanRecord.totalPostsScanned
+  ) {
+    await prisma.subredditScanRecord.update({
+      where: { id: subredditScanRecordId },
+      data: {
+        scanStatus: ScanStatus.COMPLETED,
+        completedAt: new Date(),
+      },
+    });
+  }
 
   return `Created ${l.count} leads for ${subreddit} post ${postId}`;
 }

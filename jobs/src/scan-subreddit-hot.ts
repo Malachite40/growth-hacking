@@ -1,3 +1,4 @@
+import { ScanStatus } from "@prisma/client";
 import { prisma } from "../lib/db/db";
 import reddit from "../lib/reddit/reddit";
 import { client } from "../lib/tasks/client";
@@ -23,6 +24,15 @@ export async function ScanSubredditHot({
       limit: 5,
     });
 
+    const subredditScanRecord = await prisma.subredditScanRecord.create({
+      data: {
+        watchedSubredditId: watchedSubreddit.id,
+        scanStatus: ScanStatus.PENDING,
+        totalPostsScanned: 0,
+        totalPostsToScan: posts.length,
+      },
+    });
+
     posts.forEach((post) => {
       const task = client.createTask("tasks.scan_reddit_post");
       const pending_task = task.applyAsync([
@@ -32,6 +42,7 @@ export async function ScanSubredditHot({
           topic: watchedSubreddit.searchConversation.topic,
           title: post.title,
           postId: post.id,
+          subredditScanRecordId: subredditScanRecord.id,
         },
       ]);
     });

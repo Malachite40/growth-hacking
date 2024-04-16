@@ -64,6 +64,7 @@ export const leadsRouter = createTRPCRouter({
         },
         data: {
           goodLead: input.goodLead,
+          seenAt: new Date(),
         },
       })
 
@@ -82,5 +83,19 @@ export const leadsRouter = createTRPCRouter({
       })
 
       return { success: true }
+    }),
+  fetchUnseenCount: protectedProcedure
+    .input(z.object({}))
+    .query(async ({ ctx }) => {
+      const count = await ctx.db.commentLeadReddit.count({
+        where: {
+          WatchedSubreddit: {
+            organizationId: ctx.selectedOrganization.id,
+          },
+          goodLead: null,
+        },
+      })
+
+      return { count }
     }),
 })

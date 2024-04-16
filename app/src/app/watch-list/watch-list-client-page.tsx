@@ -16,7 +16,7 @@ import { Button, buttonVariants } from "~/components/ui/button"
 import { Card, CardContent, CardHeader } from "~/components/ui/card"
 import { Input } from "~/components/ui/input"
 
-import { format } from "date-fns"
+import { format, isWithinInterval, subHours } from "date-fns"
 import { parseAsInteger, useQueryState } from "nuqs"
 import {
   AlertDialog,
@@ -45,11 +45,11 @@ import {
   FormMessage,
 } from "~/components/ui/form"
 import Paginate from "~/components/ui/paginate"
-import { Separator } from "~/components/ui/separator"
 import { Textarea } from "~/components/ui/textarea"
 import { useToast } from "~/components/ui/use-toast"
 import { cn } from "~/lib/utils"
 import { api } from "~/trpc/react"
+import DoubleScanModal from "./double-scan-modal"
 
 export type WatchListClientPageProps = {}
 
@@ -62,7 +62,8 @@ const formSchema = z.object({
 
 function WatchListClientPage({}: WatchListClientPageProps) {
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1))
-
+  const [showDoubleScanModal, setShowDoubleScanModal] = useState(false)
+  const [showDoubleScanWarning, setShowDoubleScanWarning] = useState(true)
   const [isOpen, setIsOpen] = useState(false)
   const [searchEnabled, setSearchEnabled] = useState(false)
   const [subredditSuggestions, setSubredditSuggestions] = useState<string[]>([])
@@ -157,6 +158,15 @@ function WatchListClientPage({}: WatchListClientPageProps) {
 
   return (
     <div className="p-10">
+      <DoubleScanModal
+        open={showDoubleScanModal}
+        setOpen={() => {
+          setShowDoubleScanModal(false)
+        }}
+        setShowAgain={() => {
+          setShowDoubleScanWarning(false)
+        }}
+      />
       <AlertDialog open={isOpen}>
         <AlertDialogTrigger
           className={cn(
@@ -374,7 +384,7 @@ function WatchListClientPage({}: WatchListClientPageProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-      <Separator className="my-4" />
+      <div className="my-4 flex w-full" />
 
       <div className="flex flex-col gap-4">
         {subredditWatchListItems.data &&
@@ -400,6 +410,18 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
                         onClick={() => {
+                          const sixHoursAgo = subHours(new Date(), 6)
+                          if (
+                            item.lastScanAt &&
+                            isWithinInterval(new Date(item.lastScanAt), {
+                              start: sixHoursAgo,
+                              end: new Date(),
+                            }) &&
+                            showDoubleScanWarning
+                          ) {
+                            setShowDoubleScanModal(true)
+                            return
+                          }
                           scanSubredditHot.mutate({
                             watchedSubredditId: item.id,
                           })
@@ -411,6 +433,18 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
+                          const sixHoursAgo = subHours(new Date(), 6)
+                          if (
+                            item.lastScanAt &&
+                            isWithinInterval(new Date(item.lastScanAt), {
+                              start: sixHoursAgo,
+                              end: new Date(),
+                            }) &&
+                            showDoubleScanWarning
+                          ) {
+                            setShowDoubleScanModal(true)
+                            return
+                          }
                           scanSubredditNew.mutate({
                             watchedSubredditId: item.id,
                           })
@@ -429,10 +463,10 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                             subreddits: item.subreddits.map((subreddit) => {
                               return { value: subreddit.name }
                             }),
-                            topic: item.searchConversation.topic,
+                            topic: item.searchConversation?.topic,
                             title: item.title,
                           })
-                          setPrompt(item.searchConversation.topic)
+                          setPrompt(item.searchConversation?.topic ?? "")
                           setIsOpen(true)
                         }}
                       >
@@ -442,9 +476,10 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={async () => {
+                          if (!item.searchConversation) return null
                           deleteSubredditWatchListItem.mutate({
                             watchedSubredditId: item.id,
-                            searchConversationId: item.searchConversation.id,
+                            searchConversationId: item.searchConversation?.id,
                           })
                         }}
                       >
@@ -457,14 +492,14 @@ function WatchListClientPage({}: WatchListClientPageProps) {
                     <div className="flex items-center gap-2">
                       <div className="text-lg">{item.title}</div>
                       {item.lastScanAt && (
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-muted">
                           Last Scanned:{" "}
                           {format(item.lastScanAt, "MMMM do - hh:mma")}
                         </div>
                       )}
                     </div>
-                    <div className="cursor-pointer text-sm text-muted-foreground hover:underline hover:underline-offset-1">
-                      {item.searchConversation.topic}
+                    <div className="cursor-pointer text-sm text-muted-foreground ">
+                      {item.searchConversation?.topic}
                     </div>
                   </CardHeader>
                   <CardContent>

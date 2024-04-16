@@ -5,6 +5,7 @@ import { Organization, User } from "@prisma/client"
 import {
   Building2,
   Cctv,
+  Clock3,
   Inbox,
   LucideIcon,
   PlusIcon,
@@ -61,10 +62,16 @@ function DefaultLayout({
         settings.refetch()
       },
     })
+  const unseenCountQuery = api.leads.fetchUnseenCount.useQuery(
+    {},
+    {
+      refetchInterval: 1000 * 10,
+    },
+  )
   const navLinks = [
     {
       title: "Leads",
-      label: "",
+      label: unseenCountQuery.data ? unseenCountQuery.data.count : "",
       icon: Inbox,
       variant: pathname.startsWith("/leads") ? "default" : "ghost",
       href: "/leads",
@@ -82,6 +89,13 @@ function DefaultLayout({
       icon: ThumbsUp,
       variant: pathname.startsWith("/favorites") ? "default" : "ghost",
       href: "/favorites",
+    },
+    {
+      title: "Scan History",
+      label: "",
+      icon: Clock3,
+      variant: pathname.startsWith("/scan-history") ? "default" : "ghost",
+      href: "/scan-history",
     },
   ]
   return (
@@ -122,7 +136,7 @@ function DefaultLayout({
           <div
             className={cn(
               "flex h-[52px] items-center ",
-              isCollapsed ? "h-[52px] justify-center" : "justify-start px-2",
+              isCollapsed ? "h-[52px] justify-center" : "justify-start",
             )}
           >
             <CreateOrganizationModal
@@ -135,10 +149,10 @@ function DefaultLayout({
               {!isCollapsed ? (
                 <DropdownMenuTrigger
                   className={cn(
-                    "flex  w-full",
                     buttonVariants({
-                      variant: "outline",
+                      variant: "ghost",
                     }),
+                    "flex h-full w-full rounded-none",
                   )}
                 >
                   <div className="flex items-center gap-2">
@@ -151,7 +165,12 @@ function DefaultLayout({
                   </div>
                 </DropdownMenuTrigger>
               ) : (
-                <DropdownMenuTrigger className="m-2 flex w-full items-center justify-center rounded-md border border-border py-2 font-semibold hover:bg-secondary">
+                <DropdownMenuTrigger
+                  className={cn(
+                    buttonVariants({ variant: "ghost" }),
+                    "h-full w-full rounded-none",
+                  )}
+                >
                   <Building2 className="h-4 w-4" />
                 </DropdownMenuTrigger>
               )}

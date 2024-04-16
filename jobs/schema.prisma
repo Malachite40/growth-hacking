@@ -19,7 +19,7 @@ model RedditPost {
 }
 
 model CommentLeadReddit {
-    id                 String           @id @default(uuid())
+    id                 String               @id @default(uuid())
     commentId          String
     comment            String
     action             String
@@ -28,10 +28,13 @@ model CommentLeadReddit {
     reasoning          String?
     goodLead           Boolean?
     watchedSubredditId String
-    WatchedSubreddit   WatchedSubreddit @relation(fields: [watchedSubredditId], references: [id])
-    RedditPost         RedditPost       @relation(fields: [redditPostId], references: [id])
-    createdAt          DateTime         @default(now()) @db.Timestamptz
-    updatedAt          DateTime         @default(now()) @updatedAt @db.Timestamptz
+    scanRecordId       String?
+    scanRecord         SubredditScanRecord? @relation(fields: [scanRecordId], references: [id])
+    WatchedSubreddit   WatchedSubreddit     @relation(fields: [watchedSubredditId], references: [id])
+    RedditPost         RedditPost           @relation(fields: [redditPostId], references: [id])
+    createdAt          DateTime             @default(now()) @db.Timestamptz
+    updatedAt          DateTime             @default(now()) @updatedAt @db.Timestamptz
+    seenAt             DateTime?
 
     @@index([commentId])
 }
@@ -46,17 +49,19 @@ model Subreddit {
 }
 
 model WatchedSubreddit {
-    id                   String              @id @default(uuid())
-    title                String              @default("Subreddit Watchlist Item")
+    id                   String                @id @default(uuid())
+    title                String                @default("Subreddit Watchlist Item")
     subreddits           Subreddit[]
-    searchConversationId String
-    searchConversation   SearchConversation  @relation(fields: [searchConversationId], references: [id])
-    lastScanAt           DateTime?           @db.Timestamptz
-    createdAt            DateTime            @default(now()) @db.Timestamptz
-    updatedAt            DateTime            @default(now()) @updatedAt @db.Timestamptz
+    searchConversationId String?
+    searchConversation   SearchConversation?   @relation(fields: [searchConversationId], references: [id])
+    lastScanAt           DateTime?             @db.Timestamptz
+    deletedAt            DateTime?
+    createdAt            DateTime              @default(now()) @db.Timestamptz
+    updatedAt            DateTime              @default(now()) @updatedAt @db.Timestamptz
     organizationId       String
-    Organization         Organization        @relation(fields: [organizationId], references: [id])
+    Organization         Organization          @relation(fields: [organizationId], references: [id])
     CommentLeadReddit    CommentLeadReddit[]
+    SubredditScanRecord  SubredditScanRecord[]
 }
 
 model SearchConversation {
@@ -153,4 +158,26 @@ model OrganizationUserRole {
 
 enum RoleType {
     OWNER
+}
+
+enum ScanStatus {
+    PENDING
+    IN_PROGRESS
+    ERROR
+    COMPLETED
+}
+
+model SubredditScanRecord {
+    id                 String              @id @default(uuid())
+    watchedSubredditId String
+    watchedSubreddit   WatchedSubreddit    @relation(fields: [watchedSubredditId], references: [id])
+    totalPostsToScan   Int
+    totalPostsScanned  Int
+    totalErrors        Int                 @default(0)
+    potentialLeads     Int                 @default(0) // leads that rated 80% or higher
+    scanStatus         ScanStatus
+    completedAt        DateTime?
+    createdAt          DateTime            @default(now()) @db.Timestamptz
+    updatedAt          DateTime            @default(now()) @updatedAt @db.Timestamptz
+    CommentLeadReddit  CommentLeadReddit[]
 }
