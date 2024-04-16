@@ -19,6 +19,10 @@ export async function ScanSubredditHot({
 
   if (!watchedSubreddit.subreddits.length) return console.log("no subreddits");
 
+  console.log(
+    `Scanning ${watchedSubreddit.subreddits.length} new posts for subreddit ${watchedSubreddit.title}`
+  );
+
   watchedSubreddit.subreddits.forEach(async (subreddit) => {
     const posts = await reddit.getSubreddit(subreddit.name).getHot({
       limit: 5,
