@@ -114,8 +114,9 @@ function DefaultLayout({
             )}`
           }}
           className={cn(
-            isCollapsed &&
-              "min-w-[50px] transition-all duration-300 ease-in-out",
+            isCollapsed
+              ? "flex min-w-[50px] max-w-[50px] flex-col transition-all duration-300 ease-in-out"
+              : "max-w-[200px]",
           )}
         >
           <div
