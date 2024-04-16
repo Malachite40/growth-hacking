@@ -19,14 +19,14 @@ export async function ScanSubredditNew({
 
   if (!watchedSubreddit.subreddits.length) return console.log("no subreddits");
 
-  console.log(
-    `Scanning ${watchedSubreddit.subreddits.length} new posts for subreddit ${watchedSubreddit.title}`
-  );
-
   watchedSubreddit.subreddits.forEach(async (subreddit) => {
     const posts = await reddit.getSubreddit(subreddit.name).getNew({
       limit: 25,
     });
+
+    console.log(
+      `Scanning ${posts.length} new posts for subreddit ${watchedSubreddit.title}`
+    );
 
     const subredditScanRecord = await prisma.subredditScanRecord.create({
       data: {
