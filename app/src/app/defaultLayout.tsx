@@ -71,7 +71,10 @@ function DefaultLayout({
   const navLinks = [
     {
       title: "Leads",
-      label: unseenCountQuery.data ? unseenCountQuery.data.count : "",
+      label:
+        unseenCountQuery.data && unseenCountQuery.data.count > 0
+          ? unseenCountQuery.data.count
+          : "",
       icon: Inbox,
       variant: pathname.startsWith("/leads") ? "default" : "ghost",
       href: "/leads",

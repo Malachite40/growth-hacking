@@ -8,6 +8,7 @@ import "~/styles/globals.css"
 import { TRPCReactProvider } from "~/trpc/react"
 import DefaultLayout from "./defaultLayout"
 import LoginCheck from "./login-check"
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -47,7 +48,9 @@ export default async function RootLayout({
                 organizations={organizations || null}
               >
                 <div className="flex h-full pb-12">
-                  <ScrollArea className="h-full w-full">{children}</ScrollArea>
+                  <ScrollArea className="h-[calc(100vh_-_52px)] w-full">
+                    {children}
+                  </ScrollArea>
                 </div>
               </DefaultLayout>
             </main>
