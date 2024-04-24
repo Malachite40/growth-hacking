@@ -138,8 +138,10 @@ function DefaultLayout({
         >
           <div
             className={cn(
-              "flex h-[52px] items-center ",
-              isCollapsed ? "h-[52px] justify-center" : "justify-start",
+              isCollapsed
+                ? "w-[50px] min-w-[50px] max-w-[50px]"
+                : "w-[200px] min-w-[200px] max-w-[200px]",
+              "flex flex-col transition-all  duration-300 ease-in-out",
             )}
           >
             <CreateOrganizationModal
